@@ -1,0 +1,90 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer.votebook.com:
+  peer0.authorg.votebook.com:
+  peer1.authorg.votebook.com:
+  peer0.voteorg.votebook.com:
+  peer1.voteorg.votebook.com:
+
+networks:
+  vnw:
+services:
+  ca0:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-authorg
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.authorg.votebook.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.authorg.votebook.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/authorg.votebook.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerAuthOrg
+    networks:
+      - vnw
+
+  ca1:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-voteorg
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.voteorg.votebook.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY
+    ports:
+      - "8054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.voteorg.votebook.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/voteorg.votebook.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerVoteOrg
+    networks:
+      - vnw
+
+  orderer.votebook.com:
+    extends:
+      file:   base/docker-compose-base.yaml
+      service: orderer.votebook.com
+    container_name: orderer.votebook.com
+    networks:
+      - vnw
+
+  peer0.authorg.votebook.com:
+    container_name: peer0.authorg.votebook.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.authorg.votebook.com
+    networks:
+      - vnw
+
+  peer1.authorg.votebook.com:
+    container_name: peer1.authorg.votebook.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.authorg.votebook.com
+    networks:
+      - vnw
+
+  peer0.voteorg.votebook.com:
+    container_name: peer0.voteorg.votebook.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.voteorg.votebook.com
+    networks:
+      - vnw
+
+  peer1.voteorg.votebook.com:
+    container_name: peer1.voteorg.votebook.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.voteorg.votebook.com
+    networks:
+      - vnw

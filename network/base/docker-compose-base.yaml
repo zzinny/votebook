@@ -1,0 +1,114 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+services:
+
+  orderer.votebook.com:
+    container_name: orderer.votebook.com
+    extends:
+      file: peer-base.yaml
+      service: orderer-base
+    volumes:
+        - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ../crypto-config/ordererOrganizations/votebook.com/orderers/orderer.votebook.com/msp:/var/hyperledger/orderer/msp
+        - ../crypto-config/ordererOrganizations/votebook.com/orderers/orderer.votebook.com/tls/:/var/hyperledger/orderer/tls
+        - orderer.votebook.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+
+  peer0.authorg.votebook.com:
+    container_name: peer0.authorg.votebook.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.authorg.votebook.com
+      - CORE_PEER_ADDRESS=peer0.authorg.votebook.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.authorg.votebook.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.authorg.votebook.com:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.authorg.votebook.com:7051
+      - CORE_PEER_LOCALMSPID=AuthOrgMSP
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=multi-channel-network_vnw
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/authorg.votebook.com/peers/peer0.authorg.votebook.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/authorg.votebook.com/peers/peer0.authorg.votebook.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.authorg.votebook.com:/var/hyperledger/production
+    ports:
+      - 7051:7051
+
+  peer1.authorg.votebook.com:
+    container_name: peer1.authorg.votebook.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.authorg.votebook.com
+      - CORE_PEER_ADDRESS=peer1.authorg.votebook.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.authorg.votebook.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.authorg.votebook.com:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.authorg.votebook.com:7051
+      - CORE_PEER_LOCALMSPID=AuthOrgMSP
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=multi-channel-network_vnw
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/authorg.votebook.com/peers/peer1.authorg.votebook.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/authorg.votebook.com/peers/peer1.authorg.votebook.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.authorg.votebook.com:/var/hyperledger/production
+
+    ports:
+      - 8051:8051
+
+  peer0.voteorg.votebook.com:
+    container_name: peer0.voteorg.votebook.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.voteorg.votebook.com
+      - CORE_PEER_ADDRESS=peer0.voteorg.votebook.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.voteorg.votebook.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.voteorg.votebook.com:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.voteorg.votebook.com:10051
+      - CORE_PEER_LOCALMSPID=VoteOrgMSP
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=multi-channel-network_vnw
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/voteorg.votebook.com/peers/peer0.voteorg.votebook.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/voteorg.votebook.com/peers/peer0.voteorg.votebook.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.voteorg.votebook.com:/var/hyperledger/production
+    ports:
+      - 9051:9051
+
+  peer1.voteorg.votebook.com:
+    container_name: peer1.voteorg.votebook.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.voteorg.votebook.com
+      - CORE_PEER_ADDRESS=peer1.voteorg.votebook.com:10051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.voteorg.votebook.com:10052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.voteorg.votebook.com:10051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.voteorg.votebook.com:9051
+      - CORE_PEER_LOCALMSPID=VoteOrgMSP
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=multi-channel-network_vnw
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/voteorg.votebook.com/peers/peer1.voteorg.votebook.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/voteorg.votebook.com/peers/peer1.voteorg.votebook.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.voteorg.votebook.com:/var/hyperledger/production
+    ports:
+      - 10051:10051
