@@ -133,8 +133,8 @@ function networkUp() {
   COMPOSE_FILES="-f ${COMPOSE_FILE}"
   if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
-    export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.example.com/ca && ls *_sk)
-    export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.example.com/ca && ls *_sk)
+    export VNW_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/authorg.votebook.com/ca && ls *_sk)
+    export VNW_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/voteorg.votebook.com/ca && ls *_sk)
   fi
   if [ "${CONSENSUS_TYPE}" == "kafka" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_KAFKA}"
@@ -192,8 +192,8 @@ function upgradeNetwork() {
     COMPOSE_FILES="-f ${COMPOSE_FILE}"
     if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
       COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
-      export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.example.com/ca && ls *_sk)
-      export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.example.com/ca && ls *_sk)
+      export VNW_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.example.com/ca && ls *_sk)
+      export VNW_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.example.com/ca && ls *_sk)
     fi
     if [ "${CONSENSUS_TYPE}" == "kafka" ]; then
       COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_KAFKA}"
@@ -248,7 +248,8 @@ function upgradeNetwork() {
 function networkDown() {
   # stop org3 containers also in addition to org1 and org2, in case we were running sample to add org3
   # stop kafka and zookeeper containers in case we're running with kafka consensus-type
-  docker-compose -f $COMPOSE_FILE -f $COMPOSE_FILE_COUCH -f $COMPOSE_FILE_KAFKA -f $COMPOSE_FILE_RAFT2 -f $COMPOSE_FILE_CA -f $COMPOSE_FILE_ORG3 down --volumes --remove-orphans
+  # docker-compose -f $COMPOSE_FILE -f $COMPOSE_FILE_COUCH -f $COMPOSE_FILE_KAFKA -f $COMPOSE_FILE_RAFT2 -f $COMPOSE_FILE_CA -f $COMPOSE_FILE_ORG3 down --volumes --remove-orphans
+  docker-compose -f $COMPOSE_FILE -f $COMPOSE_FILE_COUCH -f $COMPOSE_FILE_RAFT2 -f $COMPOSE_FILE_CA down --volumes --remove-orphans
 
   # Don't remove the generated artifacts -- note, the ledgers are always removed
   if [ "$MODE" != "restart" ]; then
