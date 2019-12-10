@@ -1,0 +1,20 @@
+query Q1_voter {
+  description: "Select voter with voter id"
+    statement:
+        SELECT org.sample.votebook.Voter
+            WHERE (voterId == _$idParam)
+}
+
+query Q2_election {
+  description: "Select election with electionId"
+    statement:
+        SELECT org.sample.votebook.Election
+            WHERE (electionId == _$idParam)
+}
+
+query Q3_electionResult {
+  description: "Select election result with electionResultId"
+    statement:
+        SELECT org.sample.votebook.ElectionResult
+            WHERE (electionResultId == _$idParam)
+}

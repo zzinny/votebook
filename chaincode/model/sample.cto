@@ -1,0 +1,70 @@
+namespace org.sample.votebook
+
+enum DepartmentType_Eng {
+  o GENERAL
+  o CSE
+  o SECURITY
+  o FOODENG
+  o CHEMS
+  o ARCHI
+  o URBAN
+  o ENV
+  o CLIM
+  o MBE
+}
+
+concept VoterInfo {
+  o String studentId
+  o String name
+  o DepartmentType_Eng department
+}
+
+asset Token identified by tokenId {
+  o String tokenId
+  o DepartmentType_Eng tokenType
+  o Integer general_isValid default = 1
+  o Integer depart_isValid default = 1
+}
+
+asset Election identified by electionId {
+  o String electionId
+  o DepartmentType_Eng electionType
+  o String[] candidateList
+  --> ElectionResult electionResult
+  o DateTime startDate
+  o DateTime endDate
+  o Integer[] departmentVoteNum
+}
+  
+asset ElectionResult identified by electionResultId {
+  o String electionResultId
+  o Integer[] candidateVoteNum
+}
+  
+participant Voter identified by voterId {
+  o String voterId
+  o VoterInfo voterInfo
+  o Token token
+}
+
+transaction CreateVoterToken {
+  o VoterInfo voterInfo
+}
+  
+transaction CreateElection {
+  o String electionName
+  o DepartmentType_Eng electionType
+  o String[] candidateList
+  o DateTime startDate default = "2019-01-01"
+  o DateTime endDate default = "2019-01-01"
+}
+
+transaction Vote {
+  o String tokenId
+  o String electionId
+  o Integer select
+}
+  
+event ErrorReport {
+  o String errorType
+}
